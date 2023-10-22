@@ -1,8 +1,11 @@
 package controllers;
 
+import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 
 import models.Empleado;
 
@@ -115,6 +118,28 @@ public class EmpleadoController {
 		    }
 
 		    return "Empleado no existe";
+		}
+		
+		public List<Empleado> listarEmpleados() {
+		    SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Empleado.class)
+		            .buildSessionFactory();
+		    Session session = sessionFactory.openSession();
+		    List<Empleado> empleados = null;
+
+		    try {
+		        session.beginTransaction();
+		        Query<Empleado> query = session.createQuery("from Empleado", Empleado.class);
+		        empleados = query.getResultList();
+		        session.getTransaction().commit();
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        session.getTransaction().rollback();
+		    } finally {
+		        session.close();
+		        sessionFactory.close();
+		    }
+
+		    return empleados;
 		}
 
 }
